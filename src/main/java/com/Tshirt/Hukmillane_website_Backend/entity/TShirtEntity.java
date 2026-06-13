@@ -1,0 +1,43 @@
+package com.Tshirt.Hukmillane_website_Backend.entity;
+
+
+import jakarta.persistence.*;
+import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+
+@Data
+@Entity
+@Table(name = "Orders")
+public class TShirtEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer bookingId;
+    private String Name;
+    private String email;
+    private String phoneNumber;
+    private Integer amount;
+    @ElementCollection
+    private List<SizeQuantity>sizeQuantities;
+    private Integer totalQuantity;
+
+    @CreationTimestamp
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+
+    private String razorpayOrderId;
+    private Integer razorpayAttempts;
+    private String orderStatus;
+    private String razorpayPaymentId;
+    private String razorpaySignature;
+
+}
