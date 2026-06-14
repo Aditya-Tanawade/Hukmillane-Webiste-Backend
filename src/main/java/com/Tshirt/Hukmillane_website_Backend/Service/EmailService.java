@@ -5,6 +5,7 @@ import com.Tshirt.Hukmillane_website_Backend.entity.SizeQuantity;
 import com.Tshirt.Hukmillane_website_Backend.entity.TShirtEntity;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -15,6 +16,10 @@ import java.time.format.DateTimeFormatter;
 
 @Service
 public class EmailService {
+
+
+    @Value("${email.sender-email}")
+    private String senderEmail;
 
     @Autowired
     private JavaMailSender mailSender;
@@ -248,6 +253,7 @@ public class EmailService {
 
             helper.setTo(order.getEmail());
             helper.setSubject(subject);
+            helper.setFrom(senderEmail);
             helper.setText(html, true);
 
             mailSender.send(message);
