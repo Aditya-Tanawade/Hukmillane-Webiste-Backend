@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.Map;
 
 
@@ -26,14 +28,18 @@ public class TshirtBookingController {
         return "THIS IS NEW WEBSITE ";
     }
 
-    @GetMapping("/")
-    public String  init(){
-        return "index";
-    }
 
-    @GetMapping("/orders")
-    public String ordersPage() {
-        return "orders";
+    @GetMapping("/test")
+    public String test() {
+        try (Socket socket = new Socket()) {
+            socket.connect(
+                    new InetSocketAddress("smtp.gmail.com", 587),
+                    10000
+            );
+            return "Connected";
+        } catch (Exception e) {
+            return e.toString();
+        }
     }
 
     @PostMapping("/createOrder")

@@ -6,7 +6,10 @@ const TSHIRT_SIZES = Array.from(
   (_, i) => String(20 + i * 2)
 );
 
-const BACKEND_URL = "http://localhost:8080/tshirt";
+// const BACKEND_URL = "http://localhost:8080/tshirt";
+
+const BACKEND_URL = "https://hukmillane-webiste-backend-production.up.railway.app/tshirt";
+
 
 const PRODUCTS = [
   {
@@ -321,6 +324,7 @@ function OrderPopup({ product, onClose, onSuccess, onFailure }) {
             contact: customer.phoneNumber,
           },
           notes: {
+            name:customer.name,
             product: product.name,
             sizes_and_quantities: buildSizeNote(rows),
             total_pieces: String(totalQty),
@@ -806,3 +810,5 @@ if (typeof document !== "undefined" && !document.getElementById("shop-spinner-st
   st.textContent = "@keyframes spin{to{transform:rotate(360deg)}}";
   document.head.appendChild(st);
 }
+
+
