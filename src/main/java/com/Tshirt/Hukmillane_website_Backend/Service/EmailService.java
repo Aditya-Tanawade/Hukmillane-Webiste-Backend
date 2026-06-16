@@ -10,7 +10,13 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import java.nio.charset.StandardCharsets;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -21,6 +27,9 @@ public class EmailService {
 
     @Value("${email.sender-email}")
     private String senderEmail;
+
+    @Value("${brevo.api.key:}")
+    private String brevoApiKey;
 
     @Async("emailExecutor")
     public void sendReceipt(ReceiptDTO order) {
@@ -243,6 +252,10 @@ public class EmailService {
 
 
         try {
+            if (brevoApiKey != null && !brevoApiKey.isBlank()) {
+                sendWithBrevoApi(order.getEmail(), subject, html);
+                return;
+            }
 
             MimeMessage message = mailSender.createMimeMessage();
 
@@ -258,6 +271,39 @@ public class EmailService {
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        }
+    }
+
+    private void sendWithBrevoApi(String toEmail, String subject, String html) throws Exception {
+        JSONObject sender = new JSONObject()
+                .put("name", "Hukmil Lanecha Raja")
+                .put("email", senderEmail);
+
+        JSONObject recipient = new JSONObject()
+                .put("email", toEmail);
+
+        JSONObject payload = new JSONObject()
+                .put("sender", sender)
+                .put("to", new JSONArray().put(recipient))
+                .put("subject", subject)
+                .put("htmlContent", html);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("https://api.brevo.com/v3/smtp/email"))
+                .header("accept", "application/json")
+                .header("api-key", brevoApiKey)
+                .header("content-type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(payload.toString(), StandardCharsets.UTF_8))
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient()
+                .send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() < 200 || response.statusCode() >= 300) {
+            throw new IllegalStateException(
+                    "Brevo API email failed. Status: " + response.statusCode() +
+                            ", body: " + response.body()
+            );
         }
     }
 }
