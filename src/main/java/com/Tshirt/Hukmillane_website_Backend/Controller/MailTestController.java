@@ -20,16 +20,36 @@ public class MailTestController {
     private EmailService emailService;
 
     @GetMapping("/smtp-test")
-    public String smtpTest() {
+    public String smtpTest(@RequestParam(defaultValue = "587") int port) {
         try (Socket socket = new Socket()) {
             socket.connect(
-                    new InetSocketAddress("smtp-relay.brevo.com", 587),
+                    new InetSocketAddress("smtp-relay.brevo.com", port),
                     10000
             );
-            return "CONNECTED";
+            return "CONNECTED to smtp-relay.brevo.com:" + port;
         } catch (Exception e) {
             return e.toString();
         }
+    }
+
+    @GetMapping("/smtp-test-all")
+    public String smtpTestAll() {
+        int[] ports = {587, 465, 2525};
+        StringBuilder result = new StringBuilder();
+
+        for (int port : ports) {
+            try (Socket socket = new Socket()) {
+                socket.connect(
+                        new InetSocketAddress("smtp-relay.brevo.com", port),
+                        10000
+                );
+                result.append(port).append(": CONNECTED\n");
+            } catch (Exception e) {
+                result.append(port).append(": ").append(e).append("\n");
+            }
+        }
+
+        return result.toString();
     }
 
     @GetMapping("/smtp-test-2")
