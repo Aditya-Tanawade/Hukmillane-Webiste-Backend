@@ -22,6 +22,8 @@ import java.util.Map;
         origins = {
                 "http://localhost:5173",
                 "https://hukmillanecharaja.vercel.app",
+                "https://hukmillanecharaja.in",
+                "https://www.hukmillanecharaja.in"
         }
 )
 public class TshirtBookingController {

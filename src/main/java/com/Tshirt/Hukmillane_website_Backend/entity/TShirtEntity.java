@@ -9,13 +9,14 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Data
 @Entity
 @Table(name = "Orders")
 public class TShirtEntity {
-
+ 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookingId;
@@ -27,11 +28,8 @@ public class TShirtEntity {
     private List<SizeQuantity>sizeQuantities;
     private Integer totalQuantity;
 
-    @CreationTimestamp
-    @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @UpdateTimestamp
     private LocalDateTime updatedAt;
 
     private String razorpayOrderId;
@@ -39,5 +37,17 @@ public class TShirtEntity {
     private String orderStatus;
     private String razorpayPaymentId;
     private String razorpaySignature;
+
+
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+        updatedAt = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
+    }
 
 }
