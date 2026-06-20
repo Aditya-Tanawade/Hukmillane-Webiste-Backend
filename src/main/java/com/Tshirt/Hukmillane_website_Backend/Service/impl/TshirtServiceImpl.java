@@ -9,8 +9,11 @@ import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
+import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -18,7 +21,11 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 @Service
+@Slf4j
 public class TshirtServiceImpl implements TshirtService {
+
+    private static final Logger logger =
+            LoggerFactory.getLogger(TshirtServiceImpl.class);
 
     @Autowired
     private TshirtBookingRepo tshirtBookingRepo;
@@ -45,11 +52,14 @@ public class TshirtServiceImpl implements TshirtService {
         orderRequest.put("receipt",tShirtEntity.getEmail());
         this.razorpayClient=new RazorpayClient(razorPayKey,razorPaySecret);
         Order razorPayOrder=razorpayClient.orders.create(orderRequest);
-        System.out.println("Order Details By RazorPay " + razorPayOrder);
+        logger.info("Order Created Details By RazorPay {}" , razorPayOrder);
 
         tShirtEntity.setRazorpayOrderId(razorPayOrder.get("id"));
         tShirtEntity.setOrderStatus(razorPayOrder.get("status"));
         tShirtEntity.setRazorpayAttempts(razorPayOrder.get("attempts"));
+
+        logger.info("Created Order Saving {}" , tShirtEntity);
+
         tshirtBookingRepo.save(tShirtEntity);
         return tShirtEntity;
     }
@@ -68,6 +78,8 @@ public class TshirtServiceImpl implements TshirtService {
 
         boolean isValid =
                 Utils.verifyPaymentSignature(options, razorPaySecret);
+        logger.info("Razorpay Signature Status {}" ,isValid);
+
 
 
         if (isValid) {
@@ -78,12 +90,12 @@ public class TshirtServiceImpl implements TshirtService {
             TShirtEntity savedOrder = tshirtBookingRepo.save(order);
 
             ReceiptDTO emailDto=modelMapper.map(savedOrder,ReceiptDTO.class);
-            System.out.println(emailDto.getSizeQuantities().getClass());
 
             if (savedOrder.getEmail() != null &&
                     !savedOrder.getEmail().isBlank()) {
-
+                logger.info("Sending Email With Following Data {}" ,emailDto);
                 emailService.sendReceipt(emailDto);
+
             }
             return  savedOrder;
         }

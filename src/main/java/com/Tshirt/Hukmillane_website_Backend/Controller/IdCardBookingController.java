@@ -29,8 +29,15 @@ public class IdCardBookingController {
     }
 
 
+//    @PostMapping("/createOrder")
+//    public ResponseEntity<IdCardEntity> createOrder(@RequestBody IdCardEntity orders, @RequestPart MultipartFile multipartFile) throws RazorpayException, IOException {
+//        IdCardEntity razorpayOrder = idCardService.createOrder(orders,multipartFile);
+//        return new ResponseEntity<>(razorpayOrder, HttpStatus.CREATED);
+//    }
+
     @PostMapping("/createOrder")
-    public ResponseEntity<IdCardEntity> createOrder(@RequestBody IdCardEntity orders, @RequestPart MultipartFile multipartFile) throws RazorpayException, IOException {
+    public ResponseEntity<IdCardEntity> createOrder(@RequestPart("orders") IdCardEntity orders,   // changed this
+                                                    @RequestPart("multipartFile") MultipartFile multipartFile) throws RazorpayException, IOException {
         IdCardEntity razorpayOrder = idCardService.createOrder(orders,multipartFile);
         return new ResponseEntity<>(razorpayOrder, HttpStatus.CREATED);
     }
@@ -41,6 +48,8 @@ public class IdCardBookingController {
         IdCardEntity sucessOrder = idCardService.updateStatus(response);
         return new ResponseEntity<>(sucessOrder, HttpStatus.OK);
     }
+
+
 
     @GetMapping("/{fileName}")
     public ResponseEntity<?>downloadImage(@PathVariable String fileName){

@@ -20,7 +20,7 @@ public class TShirtEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookingId;
-    private String Name;
+    private String name;
     private String email;
     private String phoneNumber;
     private Integer amount;
@@ -37,6 +37,8 @@ public class TShirtEntity {
     private String orderStatus;
     private String razorpayPaymentId;
     private String razorpaySignature;
+
+
 
 
     @PrePersist

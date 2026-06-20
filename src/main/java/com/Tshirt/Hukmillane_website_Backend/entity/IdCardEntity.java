@@ -17,12 +17,11 @@ public class IdCardEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookingId;
-    private String Name;
+    private String name;
     private String email;
     private String phoneNumber;
     private Integer amount;
-    @ElementCollection
-    private List<SizeQuantity>sizeQuantities;
+
     private Integer totalQuantity;
 
 
@@ -35,6 +34,8 @@ public class IdCardEntity {
     private String orderStatus;
     private String razorpayPaymentId;
     private String razorpaySignature;
+
+    private String idCardHolderName;
 
     private String imageName;
     private String imageType;
