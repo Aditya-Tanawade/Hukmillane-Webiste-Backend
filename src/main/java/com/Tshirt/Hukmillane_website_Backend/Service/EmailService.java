@@ -2,7 +2,6 @@ package com.Tshirt.Hukmillane_website_Backend.Service;
 
 import com.Tshirt.Hukmillane_website_Backend.DTO.ReceiptDTO;
 import com.Tshirt.Hukmillane_website_Backend.entity.SizeQuantity;
-import com.Tshirt.Hukmillane_website_Backend.entity.TShirtEntity;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,7 +10,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -19,6 +18,9 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender mailSender;
+
+    @Value("${email.sender-email}")
+    private String senderEmail;
 
     @Async("emailExecutor")
     public void sendReceipt(ReceiptDTO order) {
@@ -245,8 +247,9 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
 
             MimeMessageHelper helper =
-                    new MimeMessageHelper(message, true);
+                    new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
 
+            helper.setFrom(senderEmail, "Hukmil Lanecha Raja");
             helper.setTo(order.getEmail());
             helper.setSubject(subject);
             helper.setText(html, true);
