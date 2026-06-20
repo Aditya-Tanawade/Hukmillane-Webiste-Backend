@@ -1,8 +1,10 @@
-package com.Tshirt.Hukmillane_website_Backend.Service;
-
+package com.Tshirt.Hukmillane_website_Backend.Service.impl;
 
 import com.Tshirt.Hukmillane_website_Backend.DTO.ReceiptDTO;
+import com.Tshirt.Hukmillane_website_Backend.Repository.IdCardBookingRepo;
 import com.Tshirt.Hukmillane_website_Backend.Repository.TshirtBookingRepo;
+import com.Tshirt.Hukmillane_website_Backend.Service.IdCardService;
+import com.Tshirt.Hukmillane_website_Backend.entity.IdCardEntity;
 import com.Tshirt.Hukmillane_website_Backend.entity.TShirtEntity;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
@@ -13,15 +15,17 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
-public class TshirtServiceImpl implements TshirtService {
+public class IdCardServiceImpl implements IdCardService {
 
     @Autowired
-    private TshirtBookingRepo tshirtBookingRepo;
+    private IdCardBookingRepo idCardBookingRepo;
 
     @Autowired
     private EmailService emailService;
@@ -38,25 +42,28 @@ public class TshirtServiceImpl implements TshirtService {
     private RazorpayClient razorpayClient;
 
     @Override
-    public TShirtEntity createOrder(TShirtEntity tShirtEntity) throws RazorpayException {
+    public IdCardEntity createOrder(IdCardEntity idCardEntity, MultipartFile multipartFile) throws RazorpayException, IOException {
         JSONObject orderRequest=new JSONObject();
-        orderRequest.put("amount",tShirtEntity.getAmount() * 100);
+        orderRequest.put("amount",idCardEntity.getAmount() * 100);
         orderRequest.put("currency","INR");
-        orderRequest.put("receipt",tShirtEntity.getEmail());
+        orderRequest.put("receipt",idCardEntity.getEmail());
+        //Setting Image Data
+        idCardEntity.setImageName(multipartFile.getOriginalFilename());
+        idCardEntity.setImageType(multipartFile.getContentType());
+        idCardEntity.setImageData(multipartFile.getBytes());
         this.razorpayClient=new RazorpayClient(razorPayKey,razorPaySecret);
         Order razorPayOrder=razorpayClient.orders.create(orderRequest);
         System.out.println("Order Details By RazorPay " + razorPayOrder);
 
-        tShirtEntity.setRazorpayOrderId(razorPayOrder.get("id"));
-        tShirtEntity.setOrderStatus(razorPayOrder.get("status"));
-        tShirtEntity.setRazorpayAttempts(razorPayOrder.get("attempts"));
-        tshirtBookingRepo.save(tShirtEntity);
-        return tShirtEntity;
+        idCardEntity.setRazorpayOrderId(razorPayOrder.get("id"));
+        idCardEntity.setOrderStatus(razorPayOrder.get("status"));
+        idCardEntity.setRazorpayAttempts(razorPayOrder.get("attempts"));
+        idCardBookingRepo.save(idCardEntity);
+        return idCardEntity;
     }
 
-
     @Override
-    public TShirtEntity updateStatus(Map<String, String> response) throws RazorpayException {
+    public IdCardEntity updateStatus(Map<String, String> response) throws RazorpayException {
         String razorpayId = response.get("razorpay_order_id");
         String razorpayPaymentId = response.get("razorpay_payment_id");
         String razorpaySignature = response.get("razorpay_signature");
@@ -71,11 +78,11 @@ public class TshirtServiceImpl implements TshirtService {
 
 
         if (isValid) {
-            TShirtEntity order = tshirtBookingRepo.findByRazorpayOrderId(razorpayId);
+            IdCardEntity order = idCardBookingRepo.findByRazorpayOrderId(razorpayId);
             order.setOrderStatus("PAYMENT_SUCCESS");
             order.setRazorpayPaymentId(razorpayPaymentId);
             order.setRazorpaySignature(razorpaySignature);
-            TShirtEntity savedOrder = tshirtBookingRepo.save(order);
+            IdCardEntity savedOrder = idCardBookingRepo.save(order);
 
             ReceiptDTO emailDto=modelMapper.map(savedOrder,ReceiptDTO.class);
             System.out.println(emailDto.getSizeQuantities().getClass());
@@ -90,5 +97,11 @@ public class TshirtServiceImpl implements TshirtService {
 
 
         throw new RazorpayException("PAYMENT FAILED");
+    }
+
+
+    @Override
+    public IdCardEntity downloadImage(String fileName){
+         return  idCardBookingRepo.findByImageName(fileName).orElse(null);
     }
 }

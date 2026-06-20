@@ -33,21 +33,7 @@ public class TshirtBookingController {
 
     @GetMapping("/hello")
     public String  run(){
-        return "THIS IS NEW WEBSITE ";
-    }
-
-
-    @GetMapping("/test")
-    public String test() {
-        try (Socket socket = new Socket()) {
-            socket.connect(
-                    new InetSocketAddress("smtp.gmail.com", 587),
-                    10000
-            );
-            return "Connected";
-        } catch (Exception e) {
-            return e.toString();
-        }
+        return "THIS IS TSHIRT WEBSITE ";
     }
 
     @PostMapping("/createOrder")

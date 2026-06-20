@@ -3,20 +3,17 @@ package com.Tshirt.Hukmillane_website_Backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
 @Data
 @Entity
-@Table(name = "Tshirt-Orders")
-public class TShirtEntity {
- 
+@Table(name = "idCard-Orders")
+public class IdCardEntity {
+
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer bookingId;
@@ -28,6 +25,7 @@ public class TShirtEntity {
     private List<SizeQuantity>sizeQuantities;
     private Integer totalQuantity;
 
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -37,6 +35,11 @@ public class TShirtEntity {
     private String orderStatus;
     private String razorpayPaymentId;
     private String razorpaySignature;
+
+    private String imageName;
+    private String imageType;
+    @Lob
+    private byte[] imageData;
 
 
     @PrePersist
@@ -49,5 +52,4 @@ public class TShirtEntity {
     public void preUpdate() {
         updatedAt = LocalDateTime.now(ZoneId.of("Asia/Kolkata"));
     }
-
 }
