@@ -45,27 +45,43 @@ public class IdCardServiceImpl implements IdCardService {
     private String razorPaySecret;
 
     private RazorpayClient razorpayClient;
-
     @Override
-    public IdCardEntity createOrder(IdCardEntity idCardEntity, MultipartFile multipartFile) throws RazorpayException, IOException {
-        JSONObject orderRequest=new JSONObject();
-        orderRequest.put("amount",idCardEntity.getAmount() * 100);
-        orderRequest.put("currency","INR");
-        orderRequest.put("receipt",idCardEntity.getEmail());
-        //Setting Image Data
-        idCardEntity.setImageName(multipartFile.getOriginalFilename());
-        idCardEntity.setImageType(multipartFile.getContentType());
-        idCardEntity.setImageData(multipartFile.getBytes());
-        this.razorpayClient=new RazorpayClient(razorPayKey,razorPaySecret);
-        Order razorPayOrder=razorpayClient.orders.create(orderRequest);
-        System.out.println("Order Details By RazorPay " + razorPayOrder);
+    public IdCardEntity createOrder(IdCardEntity idCardEntity,
+                                    MultipartFile multipartFile)
+            throws RazorpayException, IOException {
+
+        JSONObject orderRequest = new JSONObject();
+        orderRequest.put("amount", idCardEntity.getAmount() * 100);
+        orderRequest.put("currency", "INR");
+        orderRequest.put("receipt", idCardEntity.getEmail());
+
+        this.razorpayClient = new RazorpayClient(razorPayKey, razorPaySecret);
+        Order razorPayOrder = razorpayClient.orders.create(orderRequest);
 
         idCardEntity.setRazorpayOrderId(razorPayOrder.get("id"));
         idCardEntity.setOrderStatus(razorPayOrder.get("status"));
         idCardEntity.setRazorpayAttempts(razorPayOrder.get("attempts"));
-        idCardBookingRepo.save(idCardEntity);
-        return idCardEntity;
+
+        // First save to generate bookingId
+        idCardEntity = idCardBookingRepo.save(idCardEntity);
+
+        String originalFileName = multipartFile.getOriginalFilename();
+        String extension = "";
+
+        if (originalFileName != null && originalFileName.contains(".")) {
+            extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+        }
+
+        idCardEntity.setImageName(
+                idCardEntity.getIdCardHolderName()+"_" + idCardEntity.getBookingId() + extension
+        );
+        idCardEntity.setImageType(multipartFile.getContentType());
+        idCardEntity.setImageData(multipartFile.getBytes());
+
+        // Save again with image details
+        return idCardBookingRepo.save(idCardEntity);
     }
+
 
     @Override
     public IdCardEntity updateStatus(Map<String, String> response) throws RazorpayException {

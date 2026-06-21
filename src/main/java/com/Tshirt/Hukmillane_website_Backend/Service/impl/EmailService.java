@@ -21,17 +21,17 @@ public class EmailService {
     @Async("emailExecutor")
     public void sendReceipt(ReceiptDTO order) {
 
-        String subject =null;
+        String subject = null;
 
-        if(order.getProduct().equals(Product.TSHIRT)){
-            subject="Payment Successful Of Mandal-TSHIRT  - Receipt #" + order.getBookingId();
-        }else{
-            subject="Payment Successful Of Mandal-IDCARD  - Receipt #" + order.getBookingId();
+        if (order.getProduct().equals(Product.TSHIRT)) {
+            subject = "Payment Successful Of Mandal-TSHIRT  - Receipt #" + order.getBookingId();
+        } else {
+            subject = "Payment Successful Of Mandal-IDCARD  - Receipt #" + order.getBookingId();
         }
 
 
         String html =
-                        "<!DOCTYPE html>\n" +
+                "<!DOCTYPE html>\n" +
                         "<html>\n" +
                         "<head>\n" +
                         "<meta charset=\"UTF-8\">\n" +
@@ -102,6 +102,11 @@ public class EmailService {
                         "                </tr>\n" +
                         "\n" +
                         "                <tr>\n" +
+                        "                    <td style=\"color:#777;font-weight:bold;\">Product</td>\n" +
+                        "                    <td align=\"right\">${PRODUCT_ROW_NAME}</td>\n" +
+                        "                </tr>\n" +
+                        "\n" +
+                        "                <tr>\n" +
                         "                    <td style=\"color:#777;font-weight:bold;\">Order ID</td>\n" +
                         "                    <td align=\"right\"\n" +
                         "                        style=\"font-family:monospace;font-size:12px;\">\n" +
@@ -128,8 +133,8 @@ public class EmailService {
                         "                        CONFIRMED\n" +
                         "                    </td>\n" +
                         "                </tr>\n" +
-                                "\n" +
-                                "       <tr>\n" +
+                        "\n" +
+                        "       <tr>\n" +
                         "                    <td style=\"color:#777;font-weight:bold;\">Total Quantity</td>\n" +
                         "                    <td align=\"right\">${TOTAL_QUANTITY}</td>\n" +
                         "                </tr>\n" +
@@ -148,7 +153,7 @@ public class EmailService {
                         "\n" +
                         "                <tr>\n" +
                         "                    <td style=\"padding:15px;font-weight:bold;font-size:16px;color:#b71c1c;\">\n" +
-                        "                        Mandal T-Shirt Order \n" +
+                        "                        Mandal ${PRODUCT_NAME} Order \n" +
                         "                    </td>\n" +
                         "                </tr>\n" +
                         "\n" +
@@ -214,23 +219,50 @@ public class EmailService {
                         "```\n";
 
 
-
         StringBuilder sizeRows = new StringBuilder();
-
-        for (SizeQuantity sq : order.getSizeQuantities()) {
+        if (order.getSizeQuantities() != null && !order.getSizeQuantities().isEmpty() && Product.TSHIRT.equals(order.getProduct())) {
+            for (SizeQuantity sq : order.getSizeQuantities()) {
+                sizeRows.append("""
+                        <tr>
+                            <td>%s</td>
+                            <td align="center">%s</td>
+                        </tr>
+                        """.formatted(
+                        sq.getSize(),
+                        sq.getQuantity()
+                ));
+            }
+        } else {
             sizeRows.append("""
-        <tr>
-            <td>%s</td>
-            <td align="center">%s</td>
-        </tr>
-        """.formatted(
-                    sq.getSize(),
-                    sq.getQuantity()
+                    <tr>
+                        <td>%s</td>
+                        <td align="center">%s</td>
+                    </tr>
+                    """.formatted(
+                    "Standard",
+                    1
             ));
         }
 
+        if (Product.IDCARD.equals(order.getProduct())) {
+            sizeRows.append("""
+        <tr>
+            <td style="color:#777;font-weight:bold;">Id Card Holder Name</td>
+            <td align="center">%s</td>
+        </tr>
+        """.formatted(order.getIdCardHolderName()));
+        }
 
+        String productName = Product.TSHIRT.equals(order.getProduct())
+                ? "T-Shirt"
+                : "Id-Card";
+
+        String productRowName = Product.TSHIRT.equals(order.getProduct())
+                ? "Mandal T-Shirt"
+                : "Volunteer ID Card";
         html = html
+                .replace("${PRODUCT_NAME}",productName)
+                .replace("${PRODUCT_ROW_NAME}",productRowName)
                 .replace("${BOOKING_ID}", String.valueOf(order.getBookingId()))
                 .replace("${CUSTOMER_NAME}", order.getName())
                 .replace("${PHONE}", order.getPhoneNumber())
