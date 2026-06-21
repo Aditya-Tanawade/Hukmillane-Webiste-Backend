@@ -1,5 +1,6 @@
 package com.Tshirt.Hukmillane_website_Backend.Service.impl;
 
+import com.Tshirt.Hukmillane_website_Backend.DTO.Product;
 import com.Tshirt.Hukmillane_website_Backend.DTO.ReceiptDTO;
 import com.Tshirt.Hukmillane_website_Backend.entity.SizeQuantity;
 import jakarta.mail.internet.MimeMessage;
@@ -20,8 +21,14 @@ public class EmailService {
     @Async("emailExecutor")
     public void sendReceipt(ReceiptDTO order) {
 
-        String subject =
-                "Payment Successful Of Mandal-Tshirt  - Receipt #" + order.getBookingId();
+        String subject =null;
+
+        if(order.getProduct().equals(Product.TSHIRT)){
+            subject="Payment Successful Of Mandal-TSHIRT  - Receipt #" + order.getBookingId();
+        }else{
+            subject="Payment Successful Of Mandal-IDCARD  - Receipt #" + order.getBookingId();
+        }
+
 
         String html =
                         "<!DOCTYPE html>\n" +
@@ -254,4 +261,8 @@ public class EmailService {
             ex.printStackTrace();
         }
     }
+
+
+
+
 }

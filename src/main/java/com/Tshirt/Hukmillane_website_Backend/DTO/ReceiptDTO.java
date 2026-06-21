@@ -1,6 +1,7 @@
 package com.Tshirt.Hukmillane_website_Backend.DTO;
 
 import com.Tshirt.Hukmillane_website_Backend.entity.SizeQuantity;
+import jakarta.persistence.Lob;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,5 +19,11 @@ public class ReceiptDTO {
     private LocalDateTime updatedAt;
     private String razorpayOrderId;
     private String razorpayPaymentId;
+
+    private String idCardHolderName;
+    private Product product;
+
+
+
 
 }

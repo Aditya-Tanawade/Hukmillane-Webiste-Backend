@@ -1,5 +1,6 @@
 package com.Tshirt.Hukmillane_website_Backend.Service.impl;
 
+import com.Tshirt.Hukmillane_website_Backend.DTO.Product;
 import com.Tshirt.Hukmillane_website_Backend.DTO.ReceiptDTO;
 import com.Tshirt.Hukmillane_website_Backend.Repository.IdCardBookingRepo;
 import com.Tshirt.Hukmillane_website_Backend.Repository.TshirtBookingRepo;
@@ -12,6 +13,8 @@ import com.razorpay.RazorpayException;
 import com.razorpay.Utils;
 import org.json.JSONObject;
 import org.modelmapper.ModelMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -23,6 +26,8 @@ import java.util.Optional;
 
 @Service
 public class IdCardServiceImpl implements IdCardService {
+    private static final Logger logger =
+            LoggerFactory.getLogger(IdCardServiceImpl.class);
 
     @Autowired
     private IdCardBookingRepo idCardBookingRepo;
@@ -90,6 +95,8 @@ public class IdCardServiceImpl implements IdCardService {
             if (savedOrder.getEmail() != null &&
                     !savedOrder.getEmail().isBlank()) {
 
+                emailDto.setProduct(Product.IDCARD);
+                logger.info("Sending Email With Following Data {}" ,emailDto);
                 emailService.sendReceipt(emailDto);
             }
             return  savedOrder;

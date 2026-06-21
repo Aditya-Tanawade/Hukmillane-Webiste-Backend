@@ -1,6 +1,7 @@
 package com.Tshirt.Hukmillane_website_Backend.Service.impl;
 
 
+import com.Tshirt.Hukmillane_website_Backend.DTO.Product;
 import com.Tshirt.Hukmillane_website_Backend.DTO.ReceiptDTO;
 import com.Tshirt.Hukmillane_website_Backend.Repository.TshirtBookingRepo;
 import com.Tshirt.Hukmillane_website_Backend.Service.TshirtService;
@@ -93,6 +94,8 @@ public class TshirtServiceImpl implements TshirtService {
 
             if (savedOrder.getEmail() != null &&
                     !savedOrder.getEmail().isBlank()) {
+                emailDto.setProduct(Product.TSHIRT);
+
                 logger.info("Sending Email With Following Data {}" ,emailDto);
                 emailService.sendReceipt(emailDto);
 
