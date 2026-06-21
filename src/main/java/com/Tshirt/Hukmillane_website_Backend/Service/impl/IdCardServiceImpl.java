@@ -90,7 +90,6 @@ public class IdCardServiceImpl implements IdCardService {
             IdCardEntity savedOrder = idCardBookingRepo.save(order);
 
             ReceiptDTO emailDto=modelMapper.map(savedOrder,ReceiptDTO.class);
-            System.out.println(emailDto.getSizeQuantities().getClass());
 
             if (savedOrder.getEmail() != null &&
                     !savedOrder.getEmail().isBlank()) {
