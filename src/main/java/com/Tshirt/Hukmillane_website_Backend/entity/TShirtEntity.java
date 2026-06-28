@@ -1,6 +1,7 @@
 package com.Tshirt.Hukmillane_website_Backend.entity;
 
 
+import com.Tshirt.Hukmillane_website_Backend.entity.enums.DeliveryStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,7 +15,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "Tshirt-Orders")
+@Table(name = "tshirt_orders")
 public class TShirtEntity {
  
     @Id
@@ -38,7 +39,8 @@ public class TShirtEntity {
     private String razorpayPaymentId;
     private String razorpaySignature;
 
-
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus;
 
 
     @PrePersist

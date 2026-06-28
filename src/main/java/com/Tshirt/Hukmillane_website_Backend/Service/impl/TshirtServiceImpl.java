@@ -6,6 +6,7 @@ import com.Tshirt.Hukmillane_website_Backend.DTO.ReceiptDTO;
 import com.Tshirt.Hukmillane_website_Backend.Repository.TshirtBookingRepo;
 import com.Tshirt.Hukmillane_website_Backend.Service.TshirtService;
 import com.Tshirt.Hukmillane_website_Backend.entity.TShirtEntity;
+import com.Tshirt.Hukmillane_website_Backend.entity.enums.DeliveryStatus;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -86,6 +87,7 @@ public class TshirtServiceImpl implements TshirtService {
         if (isValid) {
             TShirtEntity order = tshirtBookingRepo.findByRazorpayOrderId(razorpayId);
             order.setOrderStatus("PAYMENT_SUCCESS");
+            order.setDeliveryStatus(DeliveryStatus.PENDING);
             order.setRazorpayPaymentId(razorpayPaymentId);
             order.setRazorpaySignature(razorpaySignature);
             TShirtEntity savedOrder = tshirtBookingRepo.save(order);
@@ -102,7 +104,6 @@ public class TshirtServiceImpl implements TshirtService {
             }
             return  savedOrder;
         }
-
 
         throw new RazorpayException("PAYMENT FAILED");
     }

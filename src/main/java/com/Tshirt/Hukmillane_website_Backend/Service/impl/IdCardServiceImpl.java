@@ -7,6 +7,7 @@ import com.Tshirt.Hukmillane_website_Backend.Repository.TshirtBookingRepo;
 import com.Tshirt.Hukmillane_website_Backend.Service.IdCardService;
 import com.Tshirt.Hukmillane_website_Backend.entity.IdCardEntity;
 import com.Tshirt.Hukmillane_website_Backend.entity.TShirtEntity;
+import com.Tshirt.Hukmillane_website_Backend.entity.enums.DeliveryStatus;
 import com.razorpay.Order;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -101,6 +102,7 @@ public class IdCardServiceImpl implements IdCardService {
         if (isValid) {
             IdCardEntity order = idCardBookingRepo.findByRazorpayOrderId(razorpayId);
             order.setOrderStatus("PAYMENT_SUCCESS");
+            order.setDeliveryStatus(DeliveryStatus.PENDING);
             order.setRazorpayPaymentId(razorpayPaymentId);
             order.setRazorpaySignature(razorpaySignature);
             IdCardEntity savedOrder = idCardBookingRepo.save(order);
@@ -109,7 +111,6 @@ public class IdCardServiceImpl implements IdCardService {
 
             if (savedOrder.getEmail() != null &&
                     !savedOrder.getEmail().isBlank()) {
-
                 emailDto.setProduct(Product.IDCARD);
                 logger.info("Sending Email With Following Data {}" ,emailDto);
                 emailService.sendReceipt(emailDto);

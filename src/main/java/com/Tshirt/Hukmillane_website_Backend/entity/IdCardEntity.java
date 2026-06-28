@@ -1,6 +1,7 @@
 package com.Tshirt.Hukmillane_website_Backend.entity;
 
 
+import com.Tshirt.Hukmillane_website_Backend.entity.enums.DeliveryStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -10,7 +11,7 @@ import java.util.List;
 
 @Data
 @Entity
-@Table(name = "idCard-Orders")
+@Table(name = "idcard_orders")
 public class IdCardEntity {
 
 
@@ -41,6 +42,9 @@ public class IdCardEntity {
     private String imageType;
     @Lob
     private byte[] imageData;
+
+    @Enumerated(EnumType.STRING)
+    private DeliveryStatus deliveryStatus;
 
 
     @PrePersist
